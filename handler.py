@@ -16,9 +16,9 @@ from queries import (
     comparar_meses,
     metricas,
     fmt,
+    nombre_a_mes,
 )
 
-# Estado temporal: último gasto registrado por usuario
 ultimo_gasto = {}
 
 
@@ -32,23 +32,18 @@ async def handle(texto: str, user_id: int) -> str:
     except Exception:
         return "❓ No entendí bien. Intenta de nuevo."
 
-    # Si hay múltiples gastos, procesarlos todos y responder con resumen
     gastos_acciones = [a for a in acciones if a.get("accion") == "registrar_gasto"]
-    otras_acciones = [a for a in acciones if a.get("accion") != "registrar_gasto"]
 
     if len(gastos_acciones) > 1:
         return await procesar_lista_gastos(gastos_acciones, user_id)
 
-    # Acción única
     accion_obj = acciones[0]
     accion = accion_obj.get("accion")
     datos = accion_obj.get("datos", {})
 
-    # ── REGISTRAR GASTO ──────────────────────────────────────────────
     if accion == "registrar_gasto":
         return await procesar_gasto_unico(datos, user_id)
 
-    # ── CORREGIR CATEGORÍA ───────────────────────────────────────────
     elif accion == "corregir_categoria":
         gasto_id = ultimo_gasto.get(user_id)
         if not gasto_id:
@@ -58,14 +53,12 @@ async def handle(texto: str, user_id: int) -> str:
         emoji_c = cat_emoji(nueva_cat)
         return f"✅ Categoría corregida a {emoji_c} *{nueva_cat}*."
 
-    # ── CONSULTAR DEUDAS ─────────────────────────────────────────────
     elif accion == "consultar_deudas":
         persona = datos.get("persona")
         if persona:
             return deuda_persona(user_id, persona)
         return deudas_todas(user_id)
 
-    # ── REGISTRAR PAGO ───────────────────────────────────────────────
     elif accion == "registrar_pago":
         persona = datos.get("persona", "")
         monto = datos.get("monto")
@@ -74,28 +67,27 @@ async def handle(texto: str, user_id: int) -> str:
             return f"⚠️ No encontré deudas pendientes de *{persona.capitalize()}*."
         return f"✅ Registré que *{persona.capitalize()}* te pagó {fmt(total_pagado)}."
 
-    # ── RESUMEN MES ──────────────────────────────────────────────────
     elif accion == "consultar_mes":
+        mes_nombre = datos.get("mes")
+        if mes_nombre:
+            mes_num = nombre_a_mes(mes_nombre)
+            if mes_num:
+                return resumen_mes(user_id, anio, mes_num)
         return resumen_mes(user_id, anio, mes)
 
-    # ── POR CATEGORÍA ────────────────────────────────────────────────
     elif accion == "consultar_categoria":
         cat = datos.get("categoria", "Otro")
         return resumen_categoria(user_id, cat, anio, mes)
 
-    # ── ÚLTIMOS GASTOS ───────────────────────────────────────────────
     elif accion == "ultimos_gastos":
         return ultimos_gastos(user_id)
 
-    # ── COMPARAR MESES ───────────────────────────────────────────────
     elif accion == "comparar_meses":
         return comparar_meses(user_id)
 
-    # ── MÉTRICAS ─────────────────────────────────────────────────────
     elif accion == "metricas":
         return metricas(user_id)
 
-    # ── DESCONOCIDO ──────────────────────────────────────────────────
     else:
         return (
             "👋 Puedo ayudarte con:\n\n"
@@ -106,10 +98,11 @@ async def handle(texto: str, user_id: int) -> str:
             "• `15000 doctor, [nombre]` _(adelanto)_\n\n"
             "*Lista de gastos:*\n"
             "• `9300 didi`\n"
-            "  `2300 uber`\n"
-            "  `5000 oxxo`\n\n"
+            "  `2300 uber`\n\n"
             "*Consultas:*\n"
             "• `¿cuánto gasté este mes?`\n"
+            "• `gastos abril`\n"
+            "• `gastos transporte`\n"
             "• `¿cuánto me deben?`\n"
             "• `[nombre] me pagó`\n"
             "• `últimos gastos`\n"
@@ -181,15 +174,17 @@ async def procesar_lista_gastos(acciones: list, user_id: int) -> str:
 
         if tipo == "personal":
             insertar_gasto_personal(user_id, monto, desc, cat, tarjeta)
+            lineas.append(f"{emoji_c} {desc.capitalize()} — {fmt(monto)}  {emoji_t}")
         elif tipo == "split":
             partes_db = [(p["persona"], p["monto"]) for p in partes]
             insertar_gasto_split(user_id, monto, desc, cat, tarjeta, partes_db)
+            lineas.append(f"{emoji_c} {desc.capitalize()} — {fmt(monto)}  {emoji_t} 👥")
         elif tipo == "adelanto":
             persona = partes[0]["persona"] if partes else "?"
             insertar_adelanto(user_id, monto, desc, cat, tarjeta, persona)
+            lineas.append(f"{emoji_c} {desc.capitalize()} — {fmt(monto)}  {emoji_t} ↗️ _{persona.capitalize()}_")
 
         total += monto
-        lineas.append(f"{emoji_c} {desc.capitalize()} — {fmt(monto)}  {emoji_t}")
 
     lineas.append(f"\n💰 *Total: {fmt(total)}*")
     return "\n".join(lineas)

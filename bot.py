@@ -28,6 +28,10 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
 async def mensaje(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    # Ignorar mensajes sin texto (fotos, stickers, etc.)
+    if not update.message or not update.message.text:
+        return
+
     user_id = update.effective_user.id
     texto = update.message.text
     await update.message.chat.send_action("typing")
@@ -39,7 +43,7 @@ def main():
     init_db()
     app = ApplicationBuilder().token(TOKEN).build()
     app.add_handler(CommandHandler("start", start))
-    app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, mensaje))
+    app.add_handler(MessageHandler(filters.ALL, mensaje))
     print("✅ Bot corriendo...")
     app.run_polling()
 

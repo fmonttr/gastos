@@ -9,6 +9,15 @@ from database import (
 from datetime import datetime, date
 from collections import defaultdict
 
+def nombre_a_mes(nombre: str):
+    nombre = nombre.lower().strip()
+    meses = ["", "enero", "febrero", "marzo", "abril", "mayo", "junio",
+             "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"]
+    for i, m in enumerate(meses):
+        if m and (nombre == m or nombre.startswith(m[:3])):
+            return i
+    return None
+
 MESES = ["", "enero", "febrero", "marzo", "abril", "mayo", "junio",
          "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"]
 
