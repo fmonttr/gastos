@@ -12,7 +12,7 @@ TOKEN = os.environ["TELEGRAM_TOKEN"]
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(
-        👋 Hola, soy tu asistente de gastos personales.
+        "👋 Hola, soy tu asistente de gastos personales.
         
         *Para registrar un gasto*, escríbeme el monto y el lugar:
         — Gasto personal: `5.000 oxxo` o `10.000 falabella débito`
@@ -24,7 +24,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
         — ¿Cuánto me debe [nombre]?
         — Muéstrame mis últimos gastos
         — Métricas del mes
-        — Compara este mes con el anterior
+        — Compara este mes con el anterior"
         parse_mode="Markdown",
     )
 
