@@ -12,19 +12,19 @@ TOKEN = os.environ["TELEGRAM_TOKEN"]
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(
-        "👋 Hola! Soy tu bot de gastos.\n\n"
-        "*Registrar un gasto:*\n"
-        "• `5000 oxxo`\n"
-        "• `10000 falabella débito`\n"
-        "• `23000 mcdonalds, tomás y flo` _(split)_\n"
-        "• `15000 doctor, mamá` _(adelanto)_\n\n"
-        "*Consultas:*\n"
-        "• `¿cuánto gasté este mes?`\n"
-        "• `¿cuánto me deben?`\n"
-        "• `flo me pagó 5000`\n"
-        "• `últimos gastos`\n"
-        "• `métricas`\n"
-        "• `compara meses`",
+        👋 Hola, soy tu asistente de gastos personales.
+        
+        *Para registrar un gasto*, escríbeme el monto y el lugar:
+        — Gasto personal: `5.000 oxxo` o `10.000 falabella débito`
+        — Gasto compartido: `23.000 mcdonalds con [nombre] y [nombre]`
+        — Adelanto por otra persona: `15.000 doctor, [nombre]`
+        
+        *Para consultar*, puedes preguntarme:
+        — ¿Cuánto gasté este mes?
+        — ¿Cuánto me debe [nombre]?
+        — Muéstrame mis últimos gastos
+        — Métricas del mes
+        — Compara este mes con el anterior
         parse_mode="Markdown",
     )
 
