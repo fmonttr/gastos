@@ -5,7 +5,7 @@ import httpx
 GEMINI_API_KEY = os.environ["GEMINI_API_KEY"]
 GEMINI_URL = (
     "https://generativelanguage.googleapis.com/v1beta/models/"
-    "gemini-2.5-flash-preview-04-17:generateContent"
+    "gemini-2.0-flash-lite:generateContent"
 )
 
 SYSTEM_PROMPT = """Eres un asistente de control de gastos personales para un usuario chileno.
