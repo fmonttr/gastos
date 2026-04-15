@@ -204,3 +204,39 @@ def obtener_gastos_multiples_meses(user_id, meses):
             """, (user_id, str(anio), f"{mes:02d}")).fetchall()
             resultados[(anio, mes)] = rows
     return resultados
+
+
+def eliminar_gasto_por_descripcion(user_id: int, descripcion: str):
+    """Elimina el gasto más reciente que coincida con la descripción. Retorna el gasto eliminado o None."""
+    with get_conn() as conn:
+        row = conn.execute("""
+            SELECT id, descripcion, monto_total, categoria FROM gastos
+            WHERE user_id=? AND lower(descripcion) LIKE lower(?)
+            ORDER BY fecha DESC LIMIT 1
+        """, (user_id, f"%{descripcion}%")).fetchone()
+
+        if not row:
+            return None
+
+        # Eliminar deudas asociadas
+        conn.execute("DELETE FROM deudas WHERE gasto_id=?", (row["id"],))
+        conn.execute("DELETE FROM gastos WHERE id=?", (row["id"],))
+        conn.commit()
+        return dict(row)
+
+
+def modificar_categoria_por_descripcion(user_id: int, descripcion: str, nueva_categoria: str):
+    """Modifica la categoría del gasto más reciente que coincida. Retorna el gasto o None."""
+    with get_conn() as conn:
+        row = conn.execute("""
+            SELECT id, descripcion, monto_total, categoria FROM gastos
+            WHERE user_id=? AND lower(descripcion) LIKE lower(?)
+            ORDER BY fecha DESC LIMIT 1
+        """, (user_id, f"%{descripcion}%")).fetchone()
+
+        if not row:
+            return None
+
+        conn.execute("UPDATE gastos SET categoria=? WHERE id=?", (nueva_categoria, row["id"]))
+        conn.commit()
+        return dict(row)

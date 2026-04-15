@@ -1,6 +1,8 @@
 from datetime import datetime
 from ai import parse_mensaje
 from database import (
+    eliminar_gasto_por_descripcion,
+    modificar_categoria_por_descripcion,
     insertar_gasto_personal,
     insertar_gasto_split,
     insertar_adelanto,
@@ -52,6 +54,22 @@ async def handle(texto: str, user_id: int) -> str:
         corregir_categoria_ultimo(gasto_id, nueva_cat)
         emoji_c = cat_emoji(nueva_cat)
         return f"✅ Categoría corregida a {emoji_c} *{nueva_cat}*."
+
+    elif accion == "eliminar_gasto":
+        desc = datos.get("descripcion", "")
+        gasto = eliminar_gasto_por_descripcion(user_id, desc)
+        if not gasto:
+            return f"⚠️ No encontré ningún gasto con *{desc}*. Intenta con otra descripción."
+        return f"🗑️ Eliminado: *{gasto['descripcion'].capitalize()}* — {fmt(gasto['monto_total'])}"
+
+    elif accion == "modificar_categoria":
+        desc = datos.get("descripcion", "")
+        nueva_cat = datos.get("categoria", "Otro")
+        gasto = modificar_categoria_por_descripcion(user_id, desc, nueva_cat)
+        if not gasto:
+            return f"⚠️ No encontré ningún gasto con *{desc}*. Intenta con otra descripción."
+        emoji_c = cat_emoji(nueva_cat)
+        return f"✅ *{gasto['descripcion'].capitalize()}* → {emoji_c} *{nueva_cat}*"
 
     elif accion == "consultar_deudas":
         persona = datos.get("persona")

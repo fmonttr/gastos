@@ -67,6 +67,16 @@ Para lista de gastos, array:
 Cuando corrige categoría de un gasto recién registrado: "no, es comida", "ponlo en bienestar"
 {"accion":"corregir_categoria","datos":{"categoria":"Comida"}}
 
+### eliminar_gasto
+Cuando quiere eliminar un gasto por descripción.
+Ejemplos: "elimina el uber", "borra el sushi mamá", "elimina el didi de hoy"
+{"accion":"eliminar_gasto","datos":{"descripcion":"uber"}}
+
+### modificar_categoria
+Cuando quiere cambiar la categoría de un gasto anterior por descripción.
+Ejemplos: "cambia la categoría del sushi a comida", "el uber ponlo en transporte", "cambia el doctor a salud"
+{"accion":"modificar_categoria","datos":{"descripcion":"sushi mamá","categoria":"Comida"}}
+
 ### consultar_deudas
 {"accion":"consultar_deudas","datos":{"persona":"nombre" | null}}
 
